@@ -4,6 +4,16 @@ A web-based tool that inspects **all SSL certificates and DNS records** for ever
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
+## 🚀 Quick Start (No Installation Required!)
+
+**Want to try it right now?** Click the button below to launch in GitHub Codespaces - no downloads, no setup, runs entirely in your browser:
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/shanselman/cert-inspector?quickstart=1)
+
+> **For non-developers:** This is the easiest way to use Certificate Inspector. Just click the button above, wait ~2 minutes for setup, and the app opens automatically!
+
+---
+
 ## Features
 
 ### 🔍 Deep Inspection
@@ -34,22 +44,96 @@ A web-based tool that inspects **all SSL certificates and DNS records** for ever
 - **Click to copy** - Domain, fingerprint, serial number
 - **Export** - Download results as JSON or CSV
 
-## Installation
+## Installation Options
+
+| Option | Best For | Install Required? |
+|--------|----------|-------------------|
+| ☁️ **Codespaces** | Anyone - runs in browser | ❌ None |
+| 🐳 **Docker** | Teams, servers | Docker Desktop |
+| 📦 **Executable** | Offline/local use | ❌ Auto-installs browser |
+| 💻 **Local Dev** | Contributors | Node.js |
+
+---
+
+### ☁️ Option 1: GitHub Codespaces (Recommended - Zero Install!)
+
+**Perfect for non-developers!** Runs entirely in your browser with nothing to install.
+
+1. Click the green **"Code"** button on GitHub
+2. Select **"Codespaces"** tab → **"Create codespace on main"**
+3. Wait ~2 minutes for the environment to build
+4. The app starts automatically and opens in your browser!
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/shanselman/cert-inspector?quickstart=1)
+
+> 💡 **Tip:** GitHub gives you 60 hours/month of free Codespaces usage!
+
+---
+
+### 🐳 Option 2: Docker
+
+Great for running locally or on a server. Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/).
 
 ```bash
-# Clone the repo
+# Build and run
+docker build -t cert-inspector .
+docker run -p 3000:3000 cert-inspector
+```
+
+Then open http://localhost:3000
+
+---
+
+### 📦 Option 3: Standalone Executable
+
+Run locally without Node.js installed. **The app automatically downloads the browser on first run!**
+
+Download from [Releases](https://github.com/shanselman/cert-inspector/releases), then:
+
+**Windows:**
+```
+cert-inspector-win.exe
+```
+
+**macOS/Linux:**
+```bash
+chmod +x cert-inspector-macos  # or cert-inspector-linux
+./cert-inspector-macos
+```
+
+On first run you'll see:
+```
+⚠️  Playwright browser not found!
+📦 Installing Chromium browser (this only happens once)...
+✅ Browser installed successfully!
+
+🔒 Certificate Inspector running at http://localhost:3000
+```
+
+#### Building the Executable Yourself
+
+```bash
+npm install
+npm run build:win    # Windows .exe
+npm run build:mac    # macOS binary
+npm run build:linux  # Linux binary
+npm run build:all    # All platforms → dist/
+```
+
+---
+
+### 💻 Option 4: Local Development
+
+For contributors or if you want to modify the code.
+
+```bash
 git clone https://github.com/shanselman/cert-inspector.git
 cd cert-inspector
-
-# Install dependencies
 npm install
-
-# Install Playwright browser
-npx playwright install chromium
-
-# Start the server
 npm start
 ```
+
+The Playwright browser installs automatically on first run!
 
 ## Usage
 

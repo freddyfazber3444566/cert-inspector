@@ -3,9 +3,39 @@ const { chromium } = require('playwright');
 const dns = require('dns').promises;
 const tls = require('tls');
 const https = require('https');
+const { execSync, spawn } = require('child_process');
 
 const app = express();
 const PORT = 3000;
+
+// Check if Playwright browsers are installed, offer to install if not
+async function ensureBrowserInstalled() {
+  try {
+    const browser = await chromium.launch({ headless: true });
+    await browser.close();
+    console.log('✅ Playwright browser found');
+    return true;
+  } catch (error) {
+    if (error.message.includes('Executable doesn\'t exist') || error.message.includes('browserType.launch')) {
+      console.log('\n⚠️  Playwright browser not found!');
+      console.log('📦 Installing Chromium browser (this only happens once)...\n');
+      
+      try {
+        execSync('npx playwright install chromium', { 
+          stdio: 'inherit',
+          env: { ...process.env, PLAYWRIGHT_BROWSERS_PATH: '0' } // Install to node_modules
+        });
+        console.log('\n✅ Browser installed successfully!\n');
+        return true;
+      } catch (installError) {
+        console.error('\n❌ Failed to install browser automatically.');
+        console.error('Please run manually: npx playwright install chromium\n');
+        return false;
+      }
+    }
+    throw error;
+  }
+}
 
 async function getCertificate(hostname, port = 443) {
   const startTime = Date.now();
@@ -419,7 +449,17 @@ app.get('/', (req, res) => {
 </html>`);
 });
 
-app.listen(PORT, () => {
-  console.log(`Certificate Inspector running at http://localhost:${PORT}`);
-  console.log(`Usage: http://localhost:${PORT}/inspect?url=https://example.com`);
-});
+// Start server with browser check
+async function start() {
+  const browserReady = await ensureBrowserInstalled();
+  if (!browserReady) {
+    process.exit(1);
+  }
+  
+  app.listen(PORT, () => {
+    console.log(`\n🔒 Certificate Inspector running at http://localhost:${PORT}`);
+    console.log(`   Usage: http://localhost:${PORT}/inspect?url=https://example.com\n`);
+  });
+}
+
+start();

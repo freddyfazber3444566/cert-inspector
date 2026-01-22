@@ -3,11 +3,26 @@
   "version": "1.0.0",
   "description": "Inspect SSL certificates and DNS for all domains in a webpage request tree",
   "main": "server.js",
+  "bin": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build:win": "pkg . --targets node18-win-x64 --output dist/cert-inspector-win.exe",
+    "build:mac": "pkg . --targets node18-macos-x64 --output dist/cert-inspector-macos",
+    "build:linux": "pkg . --targets node18-linux-x64 --output dist/cert-inspector-linux",
+    "build:all": "pkg . --targets node18-win-x64,node18-macos-x64,node18-linux-x64 --out-path dist",
+    "docker:build": "docker build -t cert-inspector .",
+    "docker:run": "docker run -p 3000:3000 cert-inspector"
+  },
+  "pkg": {
+    "scripts": "server.js",
+    "assets": [],
+    "outputPath": "dist"
   },
   "dependencies": {
     "express": "^4.18.2",
     "playwright": "^1.40.0"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
   }
 }
