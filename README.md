@@ -4,13 +4,11 @@ A web-based tool that inspects **all SSL certificates and DNS records** for ever
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-## 🚀 Quick Start (No Installation Required!)
+## 🚀 Quick Start
 
-**Want to try it right now?** Click the button below to launch in GitHub Codespaces - no downloads, no setup, runs entirely in your browser:
+**Want to try it right now?** Download the standalone executable from [Releases](https://github.com/shanselman/cert-inspector/releases) - no installation required, just download and run.
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/shanselman/cert-inspector?quickstart=1)
-
-> **For non-developers:** This is the easiest way to use Certificate Inspector. Just click the button above, wait ~2 minutes for setup, and the app opens automatically!
+> **For non-developers:** This is the easiest way to use Certificate Inspector. Download the executable for your platform, run it, and the app opens automatically at http://localhost:3000
 
 ---
 
@@ -48,45 +46,16 @@ A web-based tool that inspects **all SSL certificates and DNS records** for ever
 
 | Option | Best For | Install Required? |
 |--------|----------|-------------------|
-| ☁️ **Codespaces** | Anyone - runs in browser | ❌ None |
-| 🐳 **Docker** | Teams, servers | Docker Desktop |
 | 📦 **Executable** | Offline/local use | ❌ Auto-installs browser |
+| 🐳 **Docker** | Teams, servers | Docker Desktop |
+| ☁️ **Codespaces** | Browser-based usage | ❌ None |
 | 💻 **Local Dev** | Contributors | Node.js |
 
 ---
 
-### ☁️ Option 1: GitHub Codespaces (Recommended - Zero Install!)
+### 📦 Option 1: Standalone Executable
 
-**Perfect for non-developers!** Runs entirely in your browser with nothing to install.
-
-1. Click the green **"Code"** button on GitHub
-2. Select **"Codespaces"** tab → **"Create codespace on main"**
-3. Wait ~2 minutes for the environment to build
-4. The app starts automatically and opens in your browser!
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/shanselman/cert-inspector?quickstart=1)
-
-> 💡 **Tip:** GitHub gives you 60 hours/month of free Codespaces usage!
-
----
-
-### 🐳 Option 2: Docker
-
-Great for running locally or on a server. Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/).
-
-```bash
-# Build and run
-docker build -t cert-inspector .
-docker run -p 3000:3000 cert-inspector
-```
-
-Then open http://localhost:3000
-
----
-
-### 📦 Option 3: Standalone Executable
-
-Run locally without Node.js installed. **The app automatically downloads the browser on first run!**
+Run locally without Node.js installed. The app automatically downloads the browser on first run.
 
 **Download from [Releases](https://github.com/shanselman/cert-inspector/releases):**
 
@@ -111,9 +80,9 @@ chmod +x cert-inspector-macos  # or cert-inspector-linux
 
 On first run you'll see:
 ```
-⚠️  Playwright browser not found!
+⚠️  Playwright browser not found
 📦 Installing Chromium browser (this only happens once)...
-✅ Browser installed successfully!
+✅ Browser installed successfully
 
 🔒 Certificate Inspector running at http://localhost:3000
 ```
@@ -130,6 +99,35 @@ npm run build:all    # All platforms → dist/
 
 ---
 
+### 🐳 Option 2: Docker
+
+Great for running locally or on a server. Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/).
+
+```bash
+# Build and run
+docker build -t cert-inspector .
+docker run -p 3000:3000 cert-inspector
+```
+
+Then open http://localhost:3000
+
+---
+
+### 📦 Option 3: GitHub Codespaces
+
+Runs entirely in your browser with nothing to install.
+
+1. Click the green **"Code"** button on GitHub
+2. Select **"Codespaces"** tab → **"Create codespace on main"**
+3. Wait ~2 minutes for the environment to build
+4. The app starts automatically and opens in your browser
+
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/shanselman/cert-inspector?quickstart=1)
+
+> 💡 **Tip:** GitHub gives you 60 hours/month of free Codespaces usage
+
+---
+
 ### 💻 Option 4: Local Development
 
 For contributors or if you want to modify the code.
@@ -141,14 +139,14 @@ npm install
 npm start
 ```
 
-The Playwright browser installs automatically on first run!
+The Playwright browser installs automatically on first run.
 
 ## Usage
 
 1. Open http://localhost:3000 in your browser
 2. Enter a URL to inspect (e.g., `https://github.com`)
 3. Wait for the page to load and all certificates to be fetched
-4. Explore the results!
+4. Explore the results
 
 ### API Usage
 
