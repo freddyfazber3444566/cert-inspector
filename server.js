@@ -115,9 +115,98 @@ function getDnsHealth(d) {
   return { icon: '🟢', class: 'ok' };
 }
 
+// Normalize URL - add https:// if missing
+function normalizeUrl(input) {
+  let url = input.trim();
+  if (!url) return null;
+  // Add protocol if missing
+  if (!/^https?:\/\//i.test(url)) {
+    url = 'https://' + url;
+  }
+  // Validate it's a proper URL
+  try {
+    new URL(url);
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+// Streaming endpoint for real-time progress
+app.get('/inspect-stream', async (req, res) => {
+  const url = normalizeUrl(req.query.url);
+  if (!url) {
+    res.status(400).json({ error: 'Invalid URL' });
+    return;
+  }
+
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders();
+
+  const send = (data) => res.write(`data: ${JSON.stringify(data)}\n\n`);
+
+  let browser;
+  try {
+    send({ phase: '🚀 Launching browser...' });
+    browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({ ignoreHTTPSErrors: true });
+    const page = await context.newPage();
+    const domains = new Set();
+
+    send({ phase: '🌐 Loading page...', log: `Navigating to ${url}` });
+
+    page.on('request', (request) => {
+      try {
+        const u = new URL(request.url());
+        if (u.protocol === 'https:' || u.protocol === 'http:') {
+          const isNew = !domains.has(u.hostname);
+          domains.add(u.hostname);
+          if (isNew) {
+            send({ log: `Found: ${u.hostname}`, type: 'domain', domainCount: domains.size });
+          }
+        }
+      } catch (e) { }
+    });
+
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+    send({ phase: '⏳ Waiting for additional requests...', log: 'Page loaded, waiting for lazy resources...' });
+    await page.waitForTimeout(2000);
+    await browser.close();
+    browser = null;
+
+    const domainList = Array.from(domains).sort();
+    send({ phase: `🔍 Inspecting ${domainList.length} domains...`, domainCount: domainList.length });
+
+    let checked = 0;
+    for (const hostname of domainList) {
+      send({ log: `Checking ${hostname}...`, type: 'info', checked: checked });
+      const [dnsInfo, certInfo, hstsInfo] = await Promise.all([
+        getDnsInfo(hostname),
+        getCertificate(hostname),
+        getHstsStatus(hostname)
+      ]);
+      checked++;
+      const health = getCertHealth(certInfo);
+      send({ 
+        log: `✓ ${hostname}: ${health.message}`, 
+        type: health.status === 'ok' ? 'success' : (health.status === 'warning' ? 'warn' : (health.status === 'none' ? 'info' : 'error')),
+        checked: checked 
+      });
+    }
+
+    send({ phase: '✅ Complete!', log: `Finished inspecting ${domainList.length} domains`, done: true });
+  } catch (error) {
+    if (browser) await browser.close();
+    send({ error: error.message });
+  }
+  res.end();
+});
+
 app.get('/inspect', async (req, res) => {
-  const url = req.query.url;
-  if (!url) return res.status(400).json({ error: 'Missing ?url= parameter' });
+  const url = normalizeUrl(req.query.url);
+  if (!url) return res.status(400).json({ error: 'Invalid URL' });
 
   let browser;
   try {
@@ -432,20 +521,146 @@ app.get('/', (req, res) => {
 <head>
   <title>Certificate Inspector</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 700px; margin: 50px auto; padding: 20px; }
     h1 { color: #333; }
     input[type=text] { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 4px; box-sizing: border-box; }
     button { padding: 12px 24px; font-size: 16px; background: #4a90d9; color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
-    button:hover { background: #357abd; }
+    button:hover:not(:disabled) { background: #357abd; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    #progress { margin-top: 20px; display: none; }
+    #progress.active { display: block; }
+    .progress-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .spinner { width: 20px; height: 20px; border: 3px solid #ddd; border-top-color: #4a90d9; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status { font-weight: 500; color: #333; }
+    .log { background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 4px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; max-height: 300px; overflow-y: auto; }
+    .log-entry { margin: 2px 0; }
+    .log-entry.phase { color: #569cd6; font-weight: bold; margin-top: 8px; }
+    .log-entry.success { color: #4ec9b0; }
+    .log-entry.info { color: #9cdcfe; }
+    .log-entry.domain { color: #ce9178; }
+    .log-entry.warn { color: #dcdcaa; }
+    .log-entry.error { color: #f14c4c; }
+    .stats { display: flex; gap: 20px; margin-top: 10px; font-size: 14px; color: #666; }
+    .stat { background: #f5f5f5; padding: 8px 12px; border-radius: 4px; }
+    .stat strong { color: #333; }
   </style>
 </head>
 <body>
   <h1>🔒 Certificate Inspector</h1>
   <p>Enter a URL to inspect all domains, DNS lookups, and SSL certificates in the request tree.</p>
-  <form action="/inspect" method="get">
-    <input type="text" name="url" placeholder="https://example.com" required>
-    <button type="submit">Inspect</button>
+  <form id="inspectForm">
+    <input type="text" id="urlInput" name="url" placeholder="example.com or https://example.com" required>
+    <button type="submit" id="submitBtn">Inspect</button>
   </form>
+  <div id="progress">
+    <div class="progress-header">
+      <div class="spinner"></div>
+      <span class="status" id="statusText">Starting inspection...</span>
+    </div>
+    <div class="stats">
+      <div class="stat">Domains: <strong id="domainCount">0</strong></div>
+      <div class="stat">Checked: <strong id="checkedCount">0</strong></div>
+      <div class="stat">Elapsed: <strong id="elapsed">0s</strong></div>
+    </div>
+    <div class="log" id="log"></div>
+  </div>
+  <script>
+    const form = document.getElementById('inspectForm');
+    const btn = document.getElementById('submitBtn');
+    const urlInput = document.getElementById('urlInput');
+    const progress = document.getElementById('progress');
+    const log = document.getElementById('log');
+    const statusText = document.getElementById('statusText');
+    const domainCount = document.getElementById('domainCount');
+    const checkedCount = document.getElementById('checkedCount');
+    const elapsedEl = document.getElementById('elapsed');
+    
+    let startTime;
+    let elapsedInterval;
+    
+    function normalizeUrl(input) {
+      let url = input.trim();
+      if (!url) return null;
+      if (!/^https?:\\/\\//i.test(url)) url = 'https://' + url;
+      try { new URL(url); return url; } catch { return null; }
+    }
+    
+    function addLog(msg, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = 'log-entry ' + type;
+      entry.textContent = msg;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
+    }
+    
+    function updateElapsed() {
+      const secs = Math.floor((Date.now() - startTime) / 1000);
+      elapsedEl.textContent = secs + 's';
+    }
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const url = normalizeUrl(urlInput.value);
+      
+      if (!url) {
+        alert('Please enter a valid URL');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = 'Inspecting...';
+      progress.classList.add('active');
+      log.innerHTML = '';
+      domainCount.textContent = '0';
+      checkedCount.textContent = '0';
+      startTime = Date.now();
+      elapsedInterval = setInterval(updateElapsed, 1000);
+      
+      addLog('Starting inspection of ' + url, 'phase');
+      
+      const evtSource = new EventSource('/inspect-stream?url=' + encodeURIComponent(url));
+      
+      evtSource.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        
+        if (data.phase) {
+          statusText.textContent = data.phase;
+          addLog(data.phase, 'phase');
+        }
+        if (data.log) {
+          addLog(data.log, data.type || 'info');
+        }
+        if (data.domainCount !== undefined) {
+          domainCount.textContent = data.domainCount;
+        }
+        if (data.checked !== undefined) {
+          checkedCount.textContent = data.checked;
+        }
+        if (data.done) {
+          evtSource.close();
+          clearInterval(elapsedInterval);
+          window.location.href = '/inspect?url=' + encodeURIComponent(url);
+        }
+        if (data.error) {
+          evtSource.close();
+          clearInterval(elapsedInterval);
+          addLog('Error: ' + data.error, 'error');
+          statusText.textContent = 'Failed';
+          btn.disabled = false;
+          btn.textContent = 'Inspect';
+        }
+      };
+      
+      evtSource.onerror = () => {
+        evtSource.close();
+        clearInterval(elapsedInterval);
+        addLog('Connection lost', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Inspect';
+      };
+    });
+  </script>
 </body>
 </html>`);
 });
