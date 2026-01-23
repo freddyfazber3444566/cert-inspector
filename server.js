@@ -22,10 +22,7 @@ async function ensureBrowserInstalled() {
       console.log('📦 Installing Chromium browser (this only happens once)...\n');
       
       try {
-        execSync('npx playwright install chromium', { 
-          stdio: 'inherit',
-          env: { ...process.env, PLAYWRIGHT_BROWSERS_PATH: '0' } // Install to node_modules
-        });
+        execSync('npx playwright install chromium', { stdio: 'inherit' });
         console.log('\n✅ Browser installed successfully!\n');
         return true;
       } catch (installError) {
